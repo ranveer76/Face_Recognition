@@ -1,12 +1,12 @@
 import React from 'react';
 import { useAppContext } from '../context/AppContext';
+import Video from '../components/Video';
 
 export default function Home() {
-    const { Count } = useAppContext();
     return (
         <div>
             <h1>Home</h1>
-            <Count />
+            <Video />
         </div>
     );
 }

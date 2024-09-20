@@ -3,26 +3,45 @@ import { Routes, Route } from 'react-router-dom';
 import AppProvider from './context/AppContext';
 import Home from './pages/Home';
 import Layout from './components/Layout';
+import faceapi_ctrl from './controls/faceapi_ctrl';
 
 export default function App() {
+    const videoRef = React.useRef(null);
     const values = {
-        Count: () => {
-            const [count, setCount] = React.useState(0);
-            useEffect(() => {
-                if (count > 10) {
-                    const err = new Error('Count is greater than 10');
-                    err.code = 500;
-                    throw err;
-                }
-            }, [count]);
-            return (
-                <div>
-                    <p>{count}</p>
-                    <button onClick={() => { (count > 10) ? setCount(0) : setCount(count + 1); }}>Increment</button>
-                </div>
-            );
-        },
+        videoRef
     };
+    useEffect(() => {
+        const loadModels = async () => {
+            await faceapi_ctrl.loadModels();
+        };
+        loadModels();
+    }, []);
+    
+    const handleLoad = async () => {
+        const video = videoRef.current.video;
+        
+        const waitForVideo = new Promise((resolve) => {
+            const checkVideoReady = () => {
+            if (video.readyState === 4) {
+                resolve(video);
+            } else {
+                setTimeout(checkVideoReady, 100);
+            }
+            };
+            checkVideoReady();
+        });
+        
+        try {
+            await waitForVideo;
+        
+            await faceapi_ctrl.detectFace(video);
+        } catch (error) {
+            console.error("Error creating canvas:", error);
+        }
+    };
+    useEffect(() => {
+        handleLoad();
+    }, [videoRef]);
     return (
         <AppProvider value={values}>
             <Layout>
