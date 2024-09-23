@@ -7,8 +7,13 @@ import faceapi_ctrl from './controls/faceapi_ctrl';
 
 export default function App() {
     const videoRef = React.useRef(null);
+    const canvasRef = React.useRef(null);
+    const intervalRef = React.useRef(null);
+    const [capturing, setCapturing] = React.useState(true);
     const values = {
-        videoRef
+        videoRef,
+        capturing,
+        setCapturing,
     };
     useEffect(() => {
         const loadModels = async () => {
@@ -22,11 +27,11 @@ export default function App() {
         
         const waitForVideo = new Promise((resolve) => {
             const checkVideoReady = () => {
-            if (video.readyState === 4) {
-                resolve(video);
-            } else {
-                setTimeout(checkVideoReady, 100);
-            }
+                if (video.readyState === 4) {
+                    resolve(video);
+                } else {
+                    setTimeout(checkVideoReady, 100);
+                }
             };
             checkVideoReady();
         });
@@ -34,14 +39,23 @@ export default function App() {
         try {
             await waitForVideo;
         
-            await faceapi_ctrl.detectFace(video);
+            await faceapi_ctrl.detectFace(video, canvasRef.current, intervalRef.current);
         } catch (error) {
             console.error("Error creating canvas:", error);
         }
     };
     useEffect(() => {
-        handleLoad();
+        if (capturing && videoRef && videoRef.current && videoRef.current.video) {
+            handleLoad();
+        }
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, [videoRef]);
+
     return (
         <AppProvider value={values}>
             <Layout>

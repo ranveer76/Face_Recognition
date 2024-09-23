@@ -4,10 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
-    "client": "npm start --prefix src",
-    "build": "npm run build --prefix src",
-    "install-client": "npm install --prefix src",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "react-scripts build",
     "server": "nodemon index.js"
   },
   "keywords": [
@@ -69,5 +66,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "https://localhost:8000"
 }
